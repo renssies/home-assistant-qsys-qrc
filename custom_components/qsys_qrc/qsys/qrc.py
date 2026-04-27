@@ -34,7 +34,7 @@ class QRCError(Exception):
 
 
 class ConnectionState(Enum):
-    """Connection state for the Q-Sys Core."""
+    """Connection state for the Q-SYS Core."""
 
     DISCONNECTED = auto()
     CONNECTING = auto()
@@ -43,7 +43,7 @@ class ConnectionState(Enum):
 
 
 class Core:
-    """Q-Sys Core connection manager with JSON-RPC support.
+    """Q-SYS Core connection manager with JSON-RPC support.
 
     Timing knobs (for tests / tuning):
     - backoff_initial: starting reconnect delay
@@ -129,7 +129,7 @@ class Core:
         await asyncio.wait_for(self._connected_event.wait(), timeout)
 
     async def connect(self):
-        """Establish connection to Q-Sys core."""
+        """Establish connection to Q-SYS core."""
         await self._set_state(ConnectionState.CONNECTING)
         _LOGGER.info("Connecting to %s:%d", self._host, self._port)
         # TODO: make limit configurable

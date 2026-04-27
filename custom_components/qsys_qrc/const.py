@@ -1,4 +1,4 @@
-"""Constants for the Q-Sys QRC integration."""
+"""Constants for the Q-SYS QRC integration."""
 
 DOMAIN = "qsys_qrc"
 

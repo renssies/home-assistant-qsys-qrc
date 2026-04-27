@@ -342,7 +342,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Q-Sys QRC from a config entry."""
+    """Set up Q-SYS QRC from a config entry."""
     config = CONFIG_SCHEMA({DOMAIN: {}})[DOMAIN]
 
     _conf = await async_integration_yaml_config(hass, DOMAIN)
@@ -389,7 +389,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             (DOMAIN, entry.data[CONF_ENGINE_STATUS].get("DesignName")),
         },
         name=entry.data[CONF_ENGINE_STATUS].get("DesignName", "Unknown"),
-        manufacturer="Q-Sys",
+        manufacturer="Q-SYS",
         model=entry.data[CONF_ENGINE_STATUS].get("Platform", "Unknown"),
     )
     devices[entry.entry_id] = device_entry

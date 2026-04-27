@@ -19,7 +19,7 @@
         },
         "data_description": {
           "core_name": "Core Name is used as an identifier used in configuration.yaml.",
-          "password": "Password is usually a 4 digit PIN as configured in Q-Sys Administrator."
+          "password": "Password is usually a 4 digit PIN as configured in Q-SYS Administrator."
         }
       }
     }
@@ -41,7 +41,7 @@
         },
         "data_description": {
           "core_name": "Core Name is used as an identifier used in configuration.yaml.",
-          "password": "Password is usually a 4 digit PIN as configured in Q-Sys Administrator."
+          "password": "Password is usually a 4 digit PIN as configured in Q-SYS Administrator."
         }
       }
     }

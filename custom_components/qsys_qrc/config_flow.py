@@ -1,4 +1,5 @@
-"""Config flow for Q-Sys QRC integration."""
+"""Config flow for Q-SYS QRC integration."""
+
 from __future__ import annotations
 
 import asyncio
@@ -67,7 +68,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Q-Sys QRC."""
+    """Handle a config flow for Q-SYS QRC."""
 
     VERSION = 1
 

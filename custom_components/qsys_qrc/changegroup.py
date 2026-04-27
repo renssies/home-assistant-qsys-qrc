@@ -27,7 +27,7 @@ class PollerState(Enum):
 
 
 class ChangeGroupPoller:
-    """Polls a Q-Sys Change Group and dispatches control change events.
+    """Polls a Q-SYS Change Group and dispatches control change events.
 
     Responsibilities:
     - Wait for Core connection
