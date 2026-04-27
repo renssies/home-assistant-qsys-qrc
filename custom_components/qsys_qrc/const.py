@@ -11,6 +11,7 @@ CONF_NUMBER_PLATFORM = "number"
 CONF_TEXT_PLATFORM = "text"
 CONF_SENSOR_PLATFORM = "sensor"
 CONF_MEDIA_PLAYER_PLATFORM = "media_player"
+CONF_QRC_DEVICES = "qrc_devices"
 
 CONF_CORE_NAME = "core_name"
 

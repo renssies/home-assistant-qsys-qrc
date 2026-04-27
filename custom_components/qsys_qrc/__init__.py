@@ -49,6 +49,7 @@ from .const import (
     CONF_PASSWORD,
     CONF_PLATFORMS,
     CONF_POLL_INTERVAL,
+    CONF_QRC_DEVICES,
     CONF_REQUEST_TIMEOUT,
     CONF_SENSOR_ATTRIBUTE,
     CONF_SENSOR_PLATFORM,
@@ -74,8 +75,6 @@ PLATFORMS: list[Platform] = [
 ]
 
 _LOGGER = logging.getLogger(__name__)
-
-devices = {}
 
 CONFIG_SCHEMA = vol.Schema(
     {
@@ -328,13 +327,17 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             _LOGGER.error("Invalid %s configuration: %s", DOMAIN, ex)
             return False
 
-    hass.data[DOMAIN] = {CONF_CONFIG: domain_conf, CONF_CACHED_CORES: {}}
+    hass.data[DOMAIN] = {
+        CONF_CONFIG: domain_conf,
+        CONF_CACHED_CORES: {},
+        CONF_QRC_DEVICES: {},
+    }
 
     async def handle_call_method(call: ServiceCall):
         """Handle the service call."""
         registry = dr.async_get(hass)
 
-        _LOGGER.info("Call request: %s", call.data)
+        _LOGGER.debug("Call request: %s", call.data)
 
         device_ids = call.data.get(CALL_METHOD_DEVICE_ID, [])
         # support single string device_id as well as list of device_ids
@@ -348,9 +351,9 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             if device is None:
                 continue
             for config_entry_id in device.config_entries:
-                config_entry = hass.data[DOMAIN].get(
-                    CONF_CONFIG_ENTRIES, {}
-                ).get(config_entry_id)
+                config_entry = (
+                    hass.data[DOMAIN].get(CONF_CONFIG_ENTRIES, {}).get(config_entry_id)
+                )
                 if not config_entry:
                     continue
                 core = hass.data[DOMAIN][CONF_CACHED_CORES].get(
@@ -448,7 +451,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         manufacturer="Q-SYS",
         model=entry.data[CONF_ENGINE_STATUS].get("Platform", "Unknown"),
     )
-    devices[entry.entry_id] = device_entry
+    hass.data[DOMAIN][CONF_QRC_DEVICES][entry.entry_id] = device_entry
 
     for de in dr.async_entries_for_config_entry(registry, entry.entry_id):
         if de != device_entry:
@@ -476,7 +479,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         hass.data[DOMAIN].setdefault(CONF_CONFIG_ENTRIES, {}).pop(entry.entry_id, None)
 
-        device_entry = devices.get(entry.entry_id)
+        device_entry = hass.data[DOMAIN].get(CONF_QRC_DEVICES, {}).get(entry.entry_id)
         if device_entry:
             registry = dr.async_get(hass)
             registry.async_remove_device(device_entry.id)
