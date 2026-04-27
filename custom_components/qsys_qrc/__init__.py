@@ -336,31 +336,33 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
         _LOGGER.info("Call request: %s", call.data)
 
-        config_entry_ids = set()
-
         device_ids = call.data.get(CALL_METHOD_DEVICE_ID, [])
         # support single string device_id as well as list of device_ids
         if isinstance(device_ids, str):
             device_ids = [device_ids]
 
+        # Find the first valid core from the provided device IDs
+        core: qrc.Core | None = None
         for device_id in device_ids:
-            device: dr.DeviceEntry = registry.devices.get(device_id, None)
-
-            for config_entry_id in device.config_entries:
-                config_entry_ids.add(config_entry_id)
-
-        if not config_entry_ids:
-            raise ServiceValidationError("No matching Q-SYS device found for call")
-
-        for config_entry_id in config_entry_ids:
-            config_entry = hass.data[DOMAIN][CONF_CONFIG_ENTRIES].get(config_entry_id)
-
-            if not config_entry:
+            device = registry.devices.get(device_id)
+            if device is None:
                 continue
+            for config_entry_id in device.config_entries:
+                config_entry = hass.data[DOMAIN].get(
+                    CONF_CONFIG_ENTRIES, {}
+                ).get(config_entry_id)
+                if not config_entry:
+                    continue
+                core = hass.data[DOMAIN][CONF_CACHED_CORES].get(
+                    config_entry.data.get(CONF_USER_DATA, {}).get(CONF_CORE_NAME)
+                )
+                if core is not None:
+                    break
+            if core is not None:
+                break
 
-        core: qrc.Core = hass.data[DOMAIN][CONF_CACHED_CORES].get(
-            config_entry.data.get(CONF_USER_DATA, {}).get(CONF_CORE_NAME)
-        )
+        if core is None:
+            raise ServiceValidationError("No matching Q-SYS device found for call")
 
         method = call.data.get(CALL_METHOD_NAME)
         params = call.data.get(CALL_METHOD_PARAMS)
