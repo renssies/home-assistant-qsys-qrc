@@ -206,7 +206,7 @@ class QRCUrlReceiverEntity(QSysComponentBase, MediaPlayerEntity):
 
         self._qsys_state[name] = change
 
-        if name == "track.name" or name == "url":
+        if name in ("track.name", "url"):
             self._attr_media_title = self._qsys_state.get(
                 "track_name", self._qsys_state.get("url", {})
             ).get("String")
@@ -217,7 +217,7 @@ class QRCUrlReceiverEntity(QSysComponentBase, MediaPlayerEntity):
                 0.0, min(1.0, change["Position"] / POSITION_0DB)
             )
 
-        elif name in ("channel.1.mute" or "channel.2.mute"):
+        elif name in ("channel.1.mute", "channel.2.mute"):
             # TODO: marks as muted even if only one channel is muted, should iterate over channels
             self._attr_is_volume_muted = value == 1.0
 
@@ -366,7 +366,7 @@ class QRCAudioFilePlayerEntity(QSysComponentBase, MediaPlayerEntity):
                 0.0, min(1.0, change["Position"] / POSITION_0DB)
             )
 
-        elif name == "mute" or name == "mute":
+        elif name == "mute":
             self._attr_is_volume_muted = value == 1.0
 
         elif name == "loop":

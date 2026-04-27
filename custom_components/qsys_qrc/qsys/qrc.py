@@ -100,6 +100,11 @@ class Core:
         self._connect_timeout = connect_timeout
         self._sleep = sleep_func
 
+    @property
+    def is_connected(self) -> bool:
+        """Return whether the core is currently connected."""
+        return self._connected_event.is_set()
+
     def set_on_connected_commands(self, commands: list):
         """Set commands to execute when connected."""
         self._on_connected_commands = commands
@@ -140,9 +145,13 @@ class Core:
         _LOGGER.info("Connecting to %s:%d", self._host, self._port)
         # TODO: make limit configurable
         opening = asyncio.open_connection(
-            self._host, self._port, limit=5 * 1024 * 1024,
+            self._host,
+            self._port,
+            limit=5 * 1024 * 1024,
         )
-        self._reader, self._writer = await asyncio.wait_for(opening, self._connect_timeout)
+        self._reader, self._writer = await asyncio.wait_for(
+            opening, self._connect_timeout
+        )
         _LOGGER.info("Connected")
 
     async def _execute_on_connected_commands(self):
@@ -156,10 +165,9 @@ class Core:
                 else:
                     # TODO: if not dict, log warning or fail?
                     await self.call(
-                        method=cmd["method"],
-                        params=cmd.get("params", None)
+                        method=cmd["method"], params=cmd.get("params", None)
                     )
-            except Exception as ex:
+            except Exception as ex:  # noqa: BLE001
                 _LOGGER.error("Error executing on-connected command: %s", repr(ex))
                 # TODO: support aborting connection (with backoff?) on failures
 
@@ -180,8 +188,8 @@ class Core:
                 _LOGGER.info("Closing writer")
                 self._writer.close()
                 await self._writer.wait_closed()
-            except Exception as ex:
-                _LOGGER.exception("Unable to close writer: %s", repr(ex))
+            except Exception:
+                _LOGGER.exception("Unable to close writer")
 
         self._writer = None
         self._reader = None
@@ -193,9 +201,7 @@ class Core:
 
         for _request_id, future in pending:
             if not future.done():
-                future.set_exception(
-                    QRCError({"code": -1, "message": "disconnected"})
-                )
+                future.set_exception(QRCError({"code": -1, "message": "disconnected"}))
 
         await self._set_state(ConnectionState.DISCONNECTED)
 
@@ -233,8 +239,8 @@ class Core:
                     self._host,
                     self._port,
                 )
-        except Exception as ex:
-            _LOGGER.exception("Error in connection cycle: %s", repr(ex))
+        except Exception:
+            _LOGGER.exception("Error in connection cycle")
         finally:
             await self._cleanup_connection()
 
@@ -248,12 +254,14 @@ class Core:
 
             try:
                 await self._handle_connection_cycle()
-                backoff = self._backoff_initial  # Reset backoff on successful connection
+                backoff = (
+                    self._backoff_initial
+                )  # Reset backoff on successful connection
             except asyncio.CancelledError:
                 _LOGGER.info("Core task cancelled")
                 raise
-            except Exception as ex:
-                _LOGGER.exception("Unexpected error in run loop: %s", repr(ex))
+            except Exception:
+                _LOGGER.exception("Unexpected error in run loop")
 
             # Wait before reconnecting (unless stopping)
             if not self._stop_event.is_set():
@@ -300,8 +308,7 @@ class Core:
         try:
             await self._send({"method": method, "params": params, "id": id_})
 
-            result = await future
-            return result
+            return await future
         finally:
             self._pending.pop(id_, None)
 

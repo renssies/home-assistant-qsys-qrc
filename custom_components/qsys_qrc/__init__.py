@@ -96,7 +96,13 @@ CONFIG_SCHEMA = vol.Schema(
                                         )
                                     }
                                 ),
-                                vol.Optional(CONF_CHANGEGROUP, default={CONF_POLL_INTERVAL: 1.0, CONF_REQUEST_TIMEOUT: 5.0}): vol.Schema(
+                                vol.Optional(
+                                    CONF_CHANGEGROUP,
+                                    default={
+                                        CONF_POLL_INTERVAL: 1.0,
+                                        CONF_REQUEST_TIMEOUT: 5.0,
+                                    },
+                                ): vol.Schema(
                                     {
                                         vol.Optional(
                                             CONF_POLL_INTERVAL, default=1.0
@@ -361,18 +367,19 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
         try:
             response = await core.call(method, params)
-            _LOGGER.debug("Call response: %s", response)
-            if call.return_response:
-                return response
-            return
         except qrc.QRCError as err:
             # Extract error message from QRCError and raise ServiceValidationError
-            error_dict = err.error if hasattr(err, 'error') else {}
-            error_code = error_dict.get('code', 'unknown')
-            error_message = error_dict.get('message', str(err))
+            error_dict = err.error if hasattr(err, "error") else {}
+            error_code = error_dict.get("code", "unknown")
+            error_message = error_dict.get("message", str(err))
             raise ServiceValidationError(
                 f"QRC Error (code {error_code}): {error_message}"
             ) from err
+        else:
+            _LOGGER.debug("Call response: %s", response)
+            if call.return_response:
+                return response
+            return None
 
     hass.services.async_register(
         DOMAIN,

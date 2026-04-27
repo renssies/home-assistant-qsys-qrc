@@ -54,7 +54,7 @@ class QSysComponentBase(entity.Entity):
 
         self.component = component
 
-        core_device_entry = device_registry.async_get(hass).async_get_device(
+        core_device_entry = dr.async_get(hass).async_get_device(
             {(DOMAIN, core_name)}
         )
         self._attr_device_info = entity.DeviceInfo(

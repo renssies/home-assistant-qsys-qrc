@@ -23,11 +23,12 @@ def create_change_group_for_platform(core, change_group_config, platform):
 
 
 class PollerState(Enum):
-    IDLE = auto()          # Not started
-    STARTING = auto()      # Waiting for core connectivity & creating CG
-    RUNNING = auto()       # Polling loop active
-    STOPPING = auto()      # Stop requested, cleaning up
     """State of the ChangeGroupPoller."""
+
+    IDLE = auto()  # Not started
+    STARTING = auto()  # Waiting for core connectivity & creating CG
+    RUNNING = auto()  # Polling loop active
+    STOPPING = auto()  # Stop requested, cleaning up
 
 
 class ChangeGroupPoller:
@@ -41,7 +42,9 @@ class ChangeGroupPoller:
     - Resilient against timeouts, QRCError, generic exceptions
     """
 
-    def __init__(self, core: qrc.Core, change_group_name, poll_interval, request_timeout):
+    def __init__(
+        self, core: qrc.Core, change_group_name, poll_interval, request_timeout
+    ) -> None:
         """Initialize the ChangeGroupPoller.
 
         Args:
@@ -71,7 +74,12 @@ class ChangeGroupPoller:
         async with self._state_lock:
             old = self._state
             self._state = new_state
-            _LOGGER.debug("ChangeGroupPoller[%s] state: %s -> %s", self._change_group_name, old.name, new_state.name)
+            _LOGGER.debug(
+                "ChangeGroupPoller[%s] state: %s -> %s",
+                self._change_group_name,
+                old.name,
+                new_state.name,
+            )
             if new_state == PollerState.RUNNING:
                 self._started_event.set()
             if new_state in (PollerState.IDLE, PollerState.STOPPING):
@@ -81,12 +89,13 @@ class ChangeGroupPoller:
         """Wait until the poller is in the RUNNING state."""
         await asyncio.wait_for(self._started_event.wait(), timeout)
 
-    def subscribe_component_control(self, listener, filter):
-        self._listeners_component_control.append((listener, filter))
+    def subscribe_component_control(self, listener, control_filter):
+        """Subscribe a listener for component control events."""
+        self._listeners_component_control.append((listener, control_filter))
 
     async def _fire_on_component_control(self, component, control):
-        for listener, filter in self._listeners_component_control:
-            if filter(component, control):
+        for listener, control_filter in self._listeners_component_control:
+            if control_filter(component, control):
                 if asyncio.iscoroutine(listener) or asyncio.iscoroutinefunction(
                     listener
                 ):
@@ -156,7 +165,10 @@ class ChangeGroupPoller:
         )
         self._creation_count += 1
         # add all subscribed controls
-        for (component_name, control_name), _listeners in self._listeners_component_control_changes.items():
+        for (
+            component_name,
+            control_name,
+        ) in self._listeners_component_control_changes:
             try:
                 await asyncio.wait_for(
                     self.cg.add_component_control(
@@ -179,7 +191,9 @@ class ChangeGroupPoller:
     async def _poll_once(self):
         if not self.cg:
             return
-        poll_result = await asyncio.wait_for(self.cg.poll(), timeout=self._request_timeout)
+        poll_result = await asyncio.wait_for(
+            self.cg.poll(), timeout=self._request_timeout
+        )
         _LOGGER.debug("%s poll result: %s", self._change_group_name, poll_result)
         for change in poll_result.get("result", {}).get("Changes", []):
             await self._fire_on_component_control_change(change)
@@ -196,8 +210,13 @@ class ChangeGroupPoller:
                 # inner polling loop; break on disconnection or stop
                 while not self._stop_event.is_set():
                     # If core lost connection, break to outer loop to recreate
-                    if not self.core._connected_event.is_set():  # relies on Core event; stub cores mimic this
-                        _LOGGER.debug("%s: core disconnected detected, leaving inner loop", self._change_group_name)
+                    if (
+                        not self.core.is_connected
+                    ):  # relies on Core property; stub cores mimic this
+                        _LOGGER.debug(
+                            "%s: core disconnected detected, leaving inner loop",
+                            self._change_group_name,
+                        )
                         # Clear existing change group reference so recreation definitely occurs
                         self.cg = None
                         break
@@ -219,11 +238,10 @@ class ChangeGroupPoller:
             except asyncio.CancelledError:
                 # propagate cancellation
                 raise
-            except Exception as ex:  # noqa: BLE001
+            except Exception:
                 _LOGGER.exception(
-                    "Unexpected error in changegroup poller %s: %s",
+                    "Unexpected error in changegroup poller %s",
                     self._change_group_name,
-                    repr(ex),
                 )
             finally:
                 await self._fire_on_run_loop_iteration_ending()
@@ -271,7 +289,4 @@ class ChangeGroupPoller:
     async def run_while_core_running(self):  # pragma: no cover - thin wrapper
         """Start polling and wait until the task completes or is cancelled."""
         self.start()
-        try:
-            await self._loop_task
-        except asyncio.CancelledError:
-            raise
+        await self._loop_task
