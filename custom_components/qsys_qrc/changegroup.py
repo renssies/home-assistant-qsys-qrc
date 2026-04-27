@@ -1,3 +1,5 @@
+"""Supports polling a Q-SYS Change Group and dispatching events to listeners."""
+
 import asyncio
 import contextlib
 from enum import Enum, auto
@@ -10,6 +12,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def create_change_group_for_platform(core, change_group_config, platform):
+    """Create a ChangeGroupPoller for the given platform."""
     change_group_config = change_group_config or {}
     return ChangeGroupPoller(
         core,
@@ -24,6 +27,7 @@ class PollerState(Enum):
     STARTING = auto()      # Waiting for core connectivity & creating CG
     RUNNING = auto()       # Polling loop active
     STOPPING = auto()      # Stop requested, cleaning up
+    """State of the ChangeGroupPoller."""
 
 
 class ChangeGroupPoller:
@@ -38,6 +42,14 @@ class ChangeGroupPoller:
     """
 
     def __init__(self, core: qrc.Core, change_group_name, poll_interval, request_timeout):
+        """Initialize the ChangeGroupPoller.
+
+        Args:
+            core: Q-SYS Core connection object
+            change_group_name: Name of the change group to poll
+            poll_interval: Interval in seconds between polls
+            request_timeout: Timeout in seconds for requests
+        """
         self.core = core
         self._listeners_component_control = []  # (listener, filter)
         self._listeners_run_loop_iteration_ending = []
@@ -66,6 +78,7 @@ class ChangeGroupPoller:
                 self._started_event.clear()
 
     async def wait_until_running(self, timeout=None):
+        """Wait until the poller is in the RUNNING state."""
         await asyncio.wait_for(self._started_event.wait(), timeout)
 
     def subscribe_component_control(self, listener, filter):
@@ -82,6 +95,7 @@ class ChangeGroupPoller:
                     listener(self, component, control)
 
     def subscribe_run_loop_iteration_ending(self, listener):
+        """Subscribe a listener for run loop iteration ending events."""
         self._listeners_run_loop_iteration_ending.append(listener)
 
     async def _fire_on_run_loop_iteration_ending(self):
@@ -94,6 +108,7 @@ class ChangeGroupPoller:
     async def subscribe_component_control_changes(
         self, listener, component_name, control_name
     ):
+        """Subscribe a listener for changes to a specific component control."""
         self._listeners_component_control_changes.setdefault(
             (component_name, control_name), []
         ).append(listener)
@@ -221,6 +236,7 @@ class ChangeGroupPoller:
         await self._set_state(PollerState.IDLE)
 
     def start(self):
+        """Start the polling loop."""
         if self._loop_task and not self._loop_task.done():
             return self._loop_task
         self._stop_event.clear()
@@ -253,6 +269,7 @@ class ChangeGroupPoller:
 
     # Backward compatible entrypoint
     async def run_while_core_running(self):  # pragma: no cover - thin wrapper
+        """Start polling and wait until the task completes or is cancelled."""
         self.start()
         try:
             await self._loop_task

@@ -1,3 +1,5 @@
+"""Q-SYS QRC client implementation."""
+
 import asyncio
 import contextlib
 from enum import Enum, auto
@@ -29,7 +31,10 @@ error_codes = {
 
 
 class QRCError(Exception):
-    def __init__(self, err):
+    """Exception raised for errors returned by the QRC protocol."""
+
+    def __init__(self, err) -> None:
+        """Initialize QRCError with error code and message."""
         self.error = err
 
 
@@ -63,7 +68,8 @@ class Core:
         backoff_max: float = 60.0,
         connect_timeout: float = 5.0,
         sleep_func=asyncio.sleep,
-    ):
+    ) -> None:
+        """Initialize the Q-SYS Core connection manager."""
         self._host = host
         self._port = port
 
@@ -284,6 +290,7 @@ class Core:
         self._writer.write(DELIMITER)
 
     async def call(self, method, params=None):
+        """Call a QRC method and return the response."""
         params = {} if params is None else params
 
         future = asyncio.Future()
@@ -317,52 +324,69 @@ class Core:
                 future.set_result(data)
 
     async def noop(self):
+        """Send a no-op command to keep the connection alive."""
         return await self.call("NoOp")
 
     async def logon(self, username, password):
+        """Log on to the Q-SYS core."""
         return await self.call("Logon", params={"User": username, "Password": password})
 
     async def status_get(self):
+        """Get the engine status."""
         return await self.call("StatusGet")
 
     def component(self):
+        """Return a ComponentAPI for this core."""
         return ComponentAPI(self)
 
     def change_group(self, id_):
+        """Return a ChangeGroupAPI for this core."""
         return ChangeGroupAPI(self, id_)
 
 
 class ComponentAPI:
-    def __init__(self, core: Core):
+    """API for Q-SYS component operations."""
+
+    def __init__(self, core: Core) -> None:
+        """Initialize the ComponentAPI."""
         self._core = core
 
     async def get_components(self):
+        """Get all components from the core."""
         return await self._core.call("Component.GetComponents")
 
     async def get_controls(self, name):
+        """Get controls for a named component."""
         return await self._core.call("Component.GetControls", params={"Name": name})
 
     async def get(self, name, controls):
+        """Get current values of component controls."""
         return await self._core.call(
             "Component.Get", params={"Name": name, "Controls": controls}
         )
 
     async def set(self, name, controls):
+        """Set values on component controls."""
         return await self._core.call(
             "Component.Set", params={"Name": name, "Controls": controls}
         )
 
 
 class ChangeGroupAPI:
-    def __init__(self, core: Core, id_: int):
+    """API for Q-SYS change group operations."""
+
+    def __init__(self, core: Core, id_: int) -> None:
+        """Initialize the ChangeGroupAPI."""
         self._core = core
         self.id = id_
 
     async def add_component_control(self, component):
+        """Add a component control to this change group."""
         return await self._core.call(
             "ChangeGroup.AddComponentControl",
             params={"Id": self.id, "Component": component},
         )
 
     async def poll(self):
+        """Poll for changes in this change group."""
         return await self._core.call("ChangeGroup.Poll", {"Id": self.id})

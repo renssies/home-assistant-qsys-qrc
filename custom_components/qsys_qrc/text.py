@@ -1,4 +1,5 @@
 """Platform for text integration."""
+
 from __future__ import annotations
 
 import asyncio
@@ -106,6 +107,8 @@ async def async_setup_entry(
 
 
 class QRCTextEntity(QSysComponentControlBase, TextEntity):
+    """Text entity for Q-SYS controls."""
+
     def __init__(
         self,
         hass,
@@ -120,6 +123,7 @@ class QRCTextEntity(QSysComponentControlBase, TextEntity):
         max_length,
         pattern,
     ) -> None:
+        """Initialize the text entity."""
         super().__init__(
             hass, core_name, core, unique_id, entity_name, component, control
         )
@@ -132,6 +136,7 @@ class QRCTextEntity(QSysComponentControlBase, TextEntity):
         self._attr_pattern = pattern
 
     async def on_control_changed(self, core, change):
+        """Handle a control value change."""
         self._attr_native_value = change["String"]
 
     async def async_set_value(self, value: str) -> None:

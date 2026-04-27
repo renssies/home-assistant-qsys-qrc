@@ -1,3 +1,5 @@
+"""Common code for Q-SYS SRC integration."""
+
 import re
 
 from homeassistant.core import HomeAssistant
@@ -9,14 +11,17 @@ from .qsys import qrc
 
 # TODO: consider entity.async_generate_entity_id
 def id_for_component_control(core_name, component, control):
+    """Generate a unique ID for a component control."""
     return f"{core_name}_{component}_{control}"
 
 
 def id_for_component(core_name, component):
+    """Generate a unique ID for a component."""
     return f"{core_name}_{component}"
 
 
 def config_for_core(hass, core_name):
+    """Get the YAML configuration for a specific core."""
     return hass.data[DOMAIN].get(CONF_CONFIG, {}).get(CONF_CORES, {}).get(core_name, {})
 
 
@@ -24,6 +29,8 @@ _camel_pattern = re.compile(r"(?<!^)(?=[A-Z])")
 
 
 class QSysComponentBase(entity.Entity):
+    """Base entity for Q-SYS components."""
+
     _attr_should_poll = False
 
     def __init__(
@@ -35,6 +42,7 @@ class QSysComponentBase(entity.Entity):
         entity_name: str,
         component: str,
     ) -> None:
+        """Initialize the Q-SYS component base entity."""
         super().__init__()
         self._core_name = core_name
         self.core = core
@@ -56,11 +64,14 @@ class QSysComponentBase(entity.Entity):
         self._attr_name = entity_name
 
     def on_core_polling_ending(self, poller):
+        """Handle core polling ending by marking entity as unavailable."""
         self._attr_available = False
         self.async_write_ha_state()
 
 
 class QSysComponentControlBase(QSysComponentBase):
+    """Base entity for Q-SYS component controls."""
+
     _attr_available = False
 
     def __init__(
@@ -73,10 +84,12 @@ class QSysComponentControlBase(QSysComponentBase):
         component: str,
         control: str,
     ) -> None:
+        """Initialize the Q-SYS component control base entity."""
         super().__init__(hass, core_name, core, unique_id, entity_name, component)
         self.control = control
 
     async def on_core_change(self, core, change):
+        """Handle a control change from the core."""
         self._attr_available = True
         extra_attrs = {}
 
@@ -91,9 +104,10 @@ class QSysComponentControlBase(QSysComponentBase):
         self.async_write_ha_state()
 
     async def on_control_changed(self, core, change):
-        pass
+        """Handle a control change event. Override in subclasses."""
 
     async def update_control(self, control_values):
+        """Send updated control values to the Q-SYS core."""
         payload = {"Name": self.control}
         payload.update(**control_values)
         await self.core.component().set(self.component, controls=[payload])

@@ -1,4 +1,5 @@
-"""Platform for media_player integration."""
+"""Platform for Media Player integration."""
+
 from __future__ import annotations
 
 import asyncio
@@ -52,6 +53,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
+    """Set up Q-SYS media player entities from a config entry."""
     try:
         await async_setup_entry_safe(hass, entry, async_add_entities)
     except TimeoutError as err:
@@ -165,6 +167,8 @@ async def async_setup_entry_safe(
 
 
 class QRCUrlReceiverEntity(QSysComponentBase, MediaPlayerEntity):
+    """Media player entity for Q-SYS URL receivers."""
+
     _attr_supported_features = (
         MediaPlayerEntityFeature(0)
         | MediaPlayerEntityFeature.VOLUME_SET
@@ -184,6 +188,7 @@ class QRCUrlReceiverEntity(QSysComponentBase, MediaPlayerEntity):
     def __init__(
         self, hass, core_name, core, unique_id, entity_name, component, device_class
     ) -> None:
+        """Initialize the URL receiver entity."""
         super().__init__(hass, core_name, core, unique_id, entity_name, component)
 
         self._attr_device_class = device_class
@@ -191,6 +196,7 @@ class QRCUrlReceiverEntity(QSysComponentBase, MediaPlayerEntity):
         self._qsys_state = {}
 
     def on_changed(self, core, change):
+        """Handle a control change event."""
         _LOGGER.debug("Media player control %s changed: %s", self.unique_id, change)
 
         self._attr_available = True
@@ -238,16 +244,19 @@ class QRCUrlReceiverEntity(QSysComponentBase, MediaPlayerEntity):
         )
 
     async def async_turn_on(self) -> None:
+        """Turn on the URL receiver."""
         await self.core.component().set(
             self.component, [{"Name": "enable", "Value": 1.0}]
         )
 
     async def async_turn_off(self) -> None:
+        """Turn off the URL receiver."""
         await self.core.component().set(
             self.component, [{"Name": "enable", "Value": 0.0}]
         )
 
     async def async_mute_volume(self, mute: bool) -> None:
+        """Mute or unmute the volume."""
         await self.core.component().set(
             self.component,
             [
@@ -257,6 +266,7 @@ class QRCUrlReceiverEntity(QSysComponentBase, MediaPlayerEntity):
         )
 
     async def async_set_volume_level(self, volume: float) -> None:
+        """Set volume level."""
         await self.core.component().set(
             self.component,
             [
@@ -306,6 +316,8 @@ class QRCUrlReceiverEntity(QSysComponentBase, MediaPlayerEntity):
 
 
 class QRCAudioFilePlayerEntity(QSysComponentBase, MediaPlayerEntity):
+    """Media player entity for Q-SYS audio file players."""
+
     _attr_supported_features = (
         MediaPlayerEntityFeature(0)
         | MediaPlayerEntityFeature.VOLUME_SET
@@ -324,6 +336,7 @@ class QRCAudioFilePlayerEntity(QSysComponentBase, MediaPlayerEntity):
     def __init__(
         self, hass, core_name, core, unique_id, entity_name, component, device_class
     ) -> None:
+        """Initialize the audio file player entity."""
         super().__init__(hass, core_name, core, unique_id, entity_name, component)
 
         self._attr_device_class = device_class
@@ -333,6 +346,7 @@ class QRCAudioFilePlayerEntity(QSysComponentBase, MediaPlayerEntity):
         self._browse_lock = asyncio.Lock()
 
     def on_changed(self, core, change):
+        """Handle a control change event."""
         _LOGGER.debug(
             "Media player control %s changed: %s", self.unique_id, change["Name"]
         )
@@ -388,26 +402,31 @@ class QRCAudioFilePlayerEntity(QSysComponentBase, MediaPlayerEntity):
             self._attr_state = MediaPlayerState.ON
 
     async def async_media_play(self) -> None:
+        """Send play command."""
         await self.core.component().set(
             self.component, [{"Name": "play.state.trigger", "Value": 1.0}]
         )
 
     async def async_media_pause(self) -> None:
+        """Send pause command."""
         await self.core.component().set(
             self.component, [{"Name": "pause.state.trigger", "Value": 1.0}]
         )
 
     async def async_media_stop(self) -> None:
+        """Send stop command."""
         await self.core.component().set(
             self.component, [{"Name": "stop.state.trigger", "Value": 1.0}]
         )
 
     async def async_media_seek(self, position: float) -> None:
+        """Seek to a position."""
         await self.core.component().set(
             self.component, [{"Name": "locate", "Value": position}]
         )
 
     async def async_mute_volume(self, mute: bool) -> None:
+        """Mute or unmute the volume."""
         await self.core.component().set(
             self.component,
             [
@@ -416,6 +435,7 @@ class QRCAudioFilePlayerEntity(QSysComponentBase, MediaPlayerEntity):
         )
 
     async def async_set_volume_level(self, volume: float) -> None:
+        """Set volume level."""
         await self.core.component().set(
             self.component,
             [
@@ -424,6 +444,7 @@ class QRCAudioFilePlayerEntity(QSysComponentBase, MediaPlayerEntity):
         )
 
     async def async_set_repeat(self, repeat: RepeatMode) -> None:
+        """Set repeat mode."""
         await self.core.component().set(
             self.component,
             [
@@ -573,6 +594,8 @@ class QRCAudioFilePlayerEntity(QSysComponentBase, MediaPlayerEntity):
 
 
 class QRCGainEntity(QSysComponentBase, MediaPlayerEntity):
+    """Media player entity for Q-SYS gain components."""
+
     _attr_supported_features = (
         MediaPlayerEntityFeature(0)
         | MediaPlayerEntityFeature.VOLUME_SET
@@ -584,6 +607,7 @@ class QRCGainEntity(QSysComponentBase, MediaPlayerEntity):
     def __init__(
         self, hass, core_name, core, unique_id, entity_name, component, device_class
     ) -> None:
+        """Initialize the gain entity."""
         super().__init__(hass, core_name, core, unique_id, entity_name, component)
 
         self._attr_device_class = device_class
@@ -591,6 +615,7 @@ class QRCGainEntity(QSysComponentBase, MediaPlayerEntity):
         self._qsys_state = {}
 
     def on_changed(self, core, change):
+        """Handle a control change event."""
         _LOGGER.debug("Media player control %s changed: %s", self.unique_id, change)
 
         self._attr_available = True
@@ -613,6 +638,7 @@ class QRCGainEntity(QSysComponentBase, MediaPlayerEntity):
         self.async_write_ha_state()
 
     async def async_mute_volume(self, mute: bool) -> None:
+        """Mute or unmute the volume."""
         await self.core.component().set(
             self.component,
             [
@@ -621,6 +647,7 @@ class QRCGainEntity(QSysComponentBase, MediaPlayerEntity):
         )
 
     async def async_set_volume_level(self, volume: float) -> None:
+        """Set volume level."""
         await self.core.component().set(
             self.component,
             [

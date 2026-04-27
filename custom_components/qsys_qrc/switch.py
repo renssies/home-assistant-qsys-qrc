@@ -1,4 +1,5 @@
 """Platform for switch integration."""
+
 from __future__ import annotations
 
 import asyncio
@@ -102,6 +103,8 @@ async def async_setup_entry(
 
 
 class QRCSwitchEntity(QSysComponentControlBase, SwitchEntity):
+    """Switch entity for Q-SYS controls."""
+
     def __init__(
         self,
         hass,
@@ -113,6 +116,7 @@ class QRCSwitchEntity(QSysComponentControlBase, SwitchEntity):
         control,
         device_class,
     ) -> None:
+        """Initialize the switch entity."""
         super().__init__(
             hass, core_name, core, unique_id, entity_name, component, control
         )
@@ -120,6 +124,7 @@ class QRCSwitchEntity(QSysComponentControlBase, SwitchEntity):
         self._attr_device_class = device_class
 
     async def on_control_changed(self, core, change):
+        """Handle a control value change."""
         val = change["Value"]
         if isinstance(val, float):
             val = val == 1.0

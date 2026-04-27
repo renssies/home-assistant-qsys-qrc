@@ -1,4 +1,5 @@
-"""The Q-Sys QRC integration."""
+"""Support for Q-SYS Remote Control Protocol (QRC)."""
+
 from __future__ import annotations
 
 import asyncio

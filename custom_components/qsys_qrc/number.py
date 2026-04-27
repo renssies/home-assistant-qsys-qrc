@@ -1,4 +1,5 @@
-"""Platform for number integration."""
+"""Platform for QRC number integration."""
+
 from __future__ import annotations
 
 import asyncio
@@ -154,6 +155,8 @@ async def async_setup_entry(
 
 
 class QRCNumberEntity(QSysComponentControlBase, NumberEntity):
+    """Number entity for Q-SYS controls."""
+
     def __init__(
         self,
         hass,
@@ -175,6 +178,7 @@ class QRCNumberEntity(QSysComponentControlBase, NumberEntity):
         device_class,
         unit_of_measurement,
     ) -> None:
+        """Initialize the number entity."""
         super().__init__(
             hass, core_name, core, unique_id, entity_name, component, control
         )
@@ -210,6 +214,7 @@ class QRCNumberEntity(QSysComponentControlBase, NumberEntity):
 
     async def on_control_changed(self, core, change):
         # TODO: figure out value vs native_value. Is that a better place for the conversion?
+        """Handle a control value change."""
         value = change["Value"]
 
         if self._use_position:

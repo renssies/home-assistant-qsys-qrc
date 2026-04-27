@@ -140,16 +140,22 @@ async def async_setup_entry(
 
 
 class EngineStatusEntity(QSysComponentBase, SensorEntity):
+    """Sensor entity for Q-SYS engine status."""
+
     def set_available(self, available):
+        """Set the availability of the entity."""
         self._attr_available = available
 
     def set_attr_native_value(self, value):
+        """Set the native value of the entity."""
         self._attr_native_value = value
 
     def set_attr_extra_state_attributes(self, value):
+        """Set the extra state attributes."""
         self._attr_extra_state_attributes = value
 
     def on_status(self, status):
+        """Handle an engine status update."""
         self.set_available(True)
         self.set_attr_native_value(
             status.get("result", {}).get("Status", {}).get("Code", -1)
@@ -158,11 +164,14 @@ class EngineStatusEntity(QSysComponentBase, SensorEntity):
         self.async_write_ha_state()
 
     def on_unavailable(self):
+        """Handle the core becoming unavailable."""
         self.set_available(False)
         self.async_write_ha_state()
 
 
 class QRCComponentControlEntity(QSysComponentControlBase, SensorEntity):
+    """Sensor entity for Q-SYS component controls."""
+
     def __init__(
         self,
         hass,
@@ -177,6 +186,7 @@ class QRCComponentControlEntity(QSysComponentControlBase, SensorEntity):
         unit_of_measurement,
         state_class,
     ) -> None:
+        """Initialize the component control sensor entity."""
         super().__init__(
             hass, core_name, core, unique_id, entity_name, component, control
         )
@@ -188,4 +198,5 @@ class QRCComponentControlEntity(QSysComponentControlBase, SensorEntity):
 
     async def on_control_changed(self, core, change):
         # TODO: if change["Choices"], copy to attr options?
+        """Handle a control value change."""
         self._attr_native_value = change.get(self.attribute)
