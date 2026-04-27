@@ -1,8 +1,8 @@
 import asyncio
 import contextlib
+from enum import Enum, auto
 import json
 import logging
-from enum import Enum, auto
 
 _LOGGER = logging.getLogger(__name__)
 

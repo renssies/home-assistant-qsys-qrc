@@ -1,10 +1,10 @@
 import asyncio
-import logging
-from enum import Enum, auto
 import contextlib
+from enum import Enum, auto
+import logging
 
-from .qsys import qrc
 from .const import CONF_POLL_INTERVAL, CONF_REQUEST_TIMEOUT
+from .qsys import qrc
 
 _LOGGER = logging.getLogger(__name__)
 

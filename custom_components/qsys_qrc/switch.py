@@ -7,12 +7,24 @@ import logging
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import changegroup
-from .common import QSysComponentControlBase, id_for_component_control, config_for_core
-from .const import *
+from .common import QSysComponentControlBase, config_for_core, id_for_component_control
+from .const import (
+    CONF_CACHED_CORES,
+    CONF_CHANGEGROUP,
+    CONF_COMPONENT,
+    CONF_CONTROL,
+    CONF_CORE_NAME,
+    CONF_DEVICE_CLASS,
+    CONF_ENTITY_NAME,
+    CONF_PLATFORMS,
+    CONF_SWITCH_PLATFORM,
+    CONF_USER_DATA,
+    DOMAIN,
+)
 from .qsys import qrc
 
 _LOGGER = logging.getLogger(__name__)

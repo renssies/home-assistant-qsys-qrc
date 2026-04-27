@@ -10,13 +10,36 @@ from homeassistant.components import number
 from homeassistant.components.number import NumberEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import template
+from homeassistant.helpers import entity_registry as er, template
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers import entity_registry as er
 
 from . import changegroup
-from .common import QSysComponentControlBase, id_for_component_control, config_for_core
-from .const import *
+from .common import QSysComponentControlBase, config_for_core, id_for_component_control
+from .const import (
+    CONF_CACHED_CORES,
+    CONF_CHANGEGROUP,
+    CONF_COMPONENT,
+    CONF_CONTROL,
+    CONF_CORE_NAME,
+    CONF_DEVICE_CLASS,
+    CONF_ENTITY_NAME,
+    CONF_EXCLUDE_COMPONENT_CONTROL,
+    CONF_FILTER,
+    CONF_NUMBER_CHANGE_TEMPLATE,
+    CONF_NUMBER_MAX_VALUE,
+    CONF_NUMBER_MIN_VALUE,
+    CONF_NUMBER_MODE,
+    CONF_NUMBER_PLATFORM,
+    CONF_NUMBER_POSITION_LOWER_LIMIT,
+    CONF_NUMBER_POSITION_UPPER_LIMIT,
+    CONF_NUMBER_STEP,
+    CONF_NUMBER_USE_POSITION,
+    CONF_NUMBER_VALUE_TEMPLATE,
+    CONF_PLATFORMS,
+    CONF_UNIT_OF_MEASUREMENT,
+    CONF_USER_DATA,
+    DOMAIN,
+)
 from .qsys import qrc
 
 _LOGGER = logging.getLogger(__name__)

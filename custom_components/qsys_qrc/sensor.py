@@ -7,17 +7,32 @@ import logging
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import changegroup
 from .common import (
     QSysComponentBase,
     QSysComponentControlBase,
-    id_for_component_control,
     config_for_core,
+    id_for_component_control,
 )
-from .const import *
+from .const import (
+    CONF_CACHED_CORES,
+    CONF_CHANGEGROUP,
+    CONF_COMPONENT,
+    CONF_CONTROL,
+    CONF_CORE_NAME,
+    CONF_DEVICE_CLASS,
+    CONF_ENTITY_NAME,
+    CONF_PLATFORMS,
+    CONF_SENSOR_ATTRIBUTE,
+    CONF_SENSOR_PLATFORM,
+    CONF_STATE_CLASS,
+    CONF_UNIT_OF_MEASUREMENT,
+    CONF_USER_DATA,
+    DOMAIN,
+)
 from .qsys import qrc
 
 _LOGGER = logging.getLogger(__name__)

@@ -5,17 +5,64 @@ import asyncio
 import logging
 
 import voluptuous as vol
+
 from homeassistant.components import media_player, number, sensor, switch, text
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import SERVICE_RELOAD, Platform
 from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
 from homeassistant.exceptions import ServiceValidationError
-from homeassistant.helpers import device_registry as dr, entity_registry as er
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.reload import async_integration_yaml_config
 from homeassistant.helpers.service import async_register_admin_service
 from homeassistant.helpers.typing import ConfigType
 
-from .const import *
+from .const import (
+    CALL_METHOD_DEVICE_ID,
+    CALL_METHOD_NAME,
+    CALL_METHOD_PARAMS,
+    CONF_CACHED_CORES,
+    CONF_CHANGEGROUP,
+    CONF_COMPONENT,
+    CONF_CONFIG,
+    CONF_CONFIG_ENTRIES,
+    CONF_CONTROL,
+    CONF_CORE_NAME,
+    CONF_CORES,
+    CONF_DEVICE_CLASS,
+    CONF_ENGINE_STATUS,
+    CONF_ENTITY_NAME,
+    CONF_EXCLUDE_COMPONENT_CONTROL,
+    CONF_FILTER,
+    CONF_HOST,
+    CONF_MEDIA_PLAYER_PLATFORM,
+    CONF_NUMBER_CHANGE_TEMPLATE,
+    CONF_NUMBER_MAX_VALUE,
+    CONF_NUMBER_MIN_VALUE,
+    CONF_NUMBER_MODE,
+    CONF_NUMBER_PLATFORM,
+    CONF_NUMBER_POSITION_LOWER_LIMIT,
+    CONF_NUMBER_POSITION_UPPER_LIMIT,
+    CONF_NUMBER_STEP,
+    CONF_NUMBER_USE_POSITION,
+    CONF_NUMBER_VALUE_TEMPLATE,
+    CONF_PASSWORD,
+    CONF_PLATFORMS,
+    CONF_POLL_INTERVAL,
+    CONF_REQUEST_TIMEOUT,
+    CONF_SENSOR_ATTRIBUTE,
+    CONF_SENSOR_PLATFORM,
+    CONF_STATE_CLASS,
+    CONF_SWITCH_PLATFORM,
+    CONF_TEXT_MAX_LENGTH,
+    CONF_TEXT_MIN_LENGTH,
+    CONF_TEXT_MODE,
+    CONF_TEXT_PATTERN,
+    CONF_TEXT_PLATFORM,
+    CONF_UNIT_OF_MEASUREMENT,
+    CONF_USER_DATA,
+    CONF_USERNAME,
+    DOMAIN,
+)
 from .qsys import qrc
 
 PLATFORMS: list[Platform] = [
@@ -23,7 +70,6 @@ PLATFORMS: list[Platform] = [
     Platform.SENSOR,
     Platform.SWITCH,
     Platform.TEXT,
-    Platform.MEDIA_PLAYER,
 ]
 
 _LOGGER = logging.getLogger(__name__)

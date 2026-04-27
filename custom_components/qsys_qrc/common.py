@@ -1,9 +1,9 @@
 import re
 
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import device_registry, entity
+from homeassistant.helpers import device_registry as dr, entity
 
-from .const import *
+from .const import CONF_CONFIG, CONF_CORES, DOMAIN
 from .qsys import qrc
 
 
